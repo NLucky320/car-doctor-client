@@ -1,6 +1,8 @@
 import { createContext, useEffect, useState } from 'react';
 import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import app from '../Firebase/Firebase.config';
+import axios, { Axios } from 'axios';
+
 
 export const AuthContext = createContext();
 
@@ -11,15 +13,37 @@ const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, currentUser => {
+            const userEmail = currentUser?.email || user.email;
+            const loggedUser={email:userEmail}
             setUser(currentUser);
             console.log('current user', currentUser);
             setLoading(false);
+            //if user exist then issue a token
+            if (currentUser) { 
+                axios.post('http://localhost:5000/jwt', loggedUser, 
+                    {
+                        withCredentials: true
+                    }
+                )
+                    .then(res => {
+                    console.log('token response', res.data)
+                    })
+                
+            }
+            else {
+                axios.post('http://localhost:5000/jwt', loggedUser, {
+                    withCredentials: true
+                })
+                    .then(res => {
+                    console.log(res.data)
+                })
+                }
         });
 
         return () => {
             unsubscribe();
         };
-    }, [auth]);
+    }, []);
 
     const createUser = (email, password) => {
         setLoading(true);
@@ -31,10 +55,17 @@ const AuthProvider = ({ children }) => {
         return signInWithEmailAndPassword(auth, email, password);
     };
 
-    const logOut = () => {
-        setLoading(true)
-    return signOut(auth)
-}
+const logOut = () => {
+    setLoading(true);
+    signOut(auth)
+        .then(() => {
+        })
+        .catch(error => {
+            console.error('Logout failed:', error);
+        });
+};
+
+
 
     const authInfo = {
         user,

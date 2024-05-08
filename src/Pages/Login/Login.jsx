@@ -16,26 +16,37 @@ const navigate=useNavigate()
         const password = form.password.value;
 
         signIn(email, password)
-            .then(result => {
-                const loggedInUser = result.user;
-              console.log(loggedInUser);
-              const user={email}
-           
-              //get access token
-              axios.post('http://localhost:5000/jwt', user,
-                {withCredentials:true}
-              )
-                .then(res => {
-                  console.log(res.data)
-                  if (res.data.success) {
-                       navigate(location?.state ? location?.state : '/')
-                  }
-              })
+          .then(result => {
+            const user = result.user;
+               navigate(location?.state ? location?.state : '/')
+                // console.log(user)
             })
             .catch(error => {
             console.log(error)
         })
     }
+
+    //     signIn(email, password)
+    //         .then(result => {
+    //             const loggedInUser = result.user;
+    //           console.log(loggedInUser);
+    //           const user={email}
+           
+    //           //get access token
+    //           axios.post('http://localhost:5000/jwt', user,
+    //             {withCredentials:true}
+    //           )
+    //             .then(res => {
+    //               console.log(res.data)
+    //               if (res.data.success) {
+    //                    navigate(location?.state ? location?.state : '/')
+    //               }
+    //           })
+    //         })
+    //         .catch(error => {
+    //         console.log(error)
+    //     })
+    // }
     return (
         <div className="hero bg-base-200">
   <div className="hero-content flex-col lg:flex-row">
